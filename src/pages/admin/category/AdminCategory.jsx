@@ -1,114 +1,206 @@
-import {useState, useEffect} from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
+import { CATEGORY_URL } from "../../../routes/serverRoutes";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../slices/auth/authSlice";
-import { PRODUCT_CATEGORY_URL } from "../../../routes/serverRoutes";
-import { MANAGER_ADD_CATEGORY_URL } from "../../../routes/clientRoutes";
+import { MdManageSearch, MdEdit, MdDelete } from "react-icons/md";
+import { FaX } from "react-icons/fa6";
+import Pagination from "../../../components/Pagination";
+import { format } from "date-fns"; // For date formatting
+import { motion } from "framer-motion";
+
 const AdminCategory = () => {
-  const [name, setName] = useState("");
-  const [searchId, setSearchId] = useState("");
+  const [categories, setCategories] = useState([]);
   const [errMsg, setErrMsg] = useState("");
-  const [categories, setCategories] = useState(null);
-  const [fromSearch, setFromSearch] = useState(false);
- 
-  const token = useSelector(selectCurrentToken)
+  const token = useSelector(selectCurrentToken);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentData =
+    filteredData.length > 0
+      ? filteredData.slice(indexOfFirstItem, indexOfLastItem)
+      : categories.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   useEffect(() => {
-    const getProductCategory = async () => {
-        try {
-            const res = await axios.get(PRODUCT_CATEGORY_URL, {headers: {Authorization: `Bearer ${token}`},withCredentials: true});
-            console.log(res?.data);
-            setCategories(res?.data);
-            setFromSearch(false);
-        }catch(err) {
-            console.log(err);
-        }
-    }
-    getProductCategory();
-  }, [])
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(CATEGORY_URL, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
+        setCategories(res?.data);
+        setFilteredData([]);
+      } catch (err) {
+        setErrMsg(err?.response?.data?.error || "Failed to fetch categories");
+      }
+    };
 
-  const searchProductCategory = async (e, name) => {
-    try { 
-        const res = await axios.get(`${PRODUCT_CATEGORY_URL}`, {headers: {Authorization: `Bearer ${token}`}, withCredentials: true});
-        
-        name ? setCategories(res?.data.filter(el => el.name.toLowerCase().includes(name.toLowerCase()))) : setCategories(res?.data);
-        setFromSearch(true);
-    }catch(err) {
-        console.log(err?.data?.message);
-        setErrMsg(err?.data?.message);
-    }
-  }
+    fetchCategories();
+  }, [token]);
 
-  const deleteCategory = async (categoryId) => {    
-    try {
-        await axios.delete(`${PRODUCT_CATEGORY_URL}/${categoryId}`, {headers: {Authorization: `Bearer ${token}`,withCredentials: true}});
-        setCategories(categories.filter(category => category.id !== categoryId));
-    }catch(err) {
-        console.log(err);
+  const searchItem = () => {
+    if (searchTerm) {
+      const lowercasedSearchTerm = searchTerm.toLowerCase();
+      const results = categories.filter(
+        (category) =>
+          category.name.toLowerCase().includes(lowercasedSearchTerm) ||
+          formatDate(category.createdAt).includes(lowercasedSearchTerm) ||
+          formatDate(category.updatedAt).includes(lowercasedSearchTerm)
+      );
+      setFilteredData(results);
     }
-  }
+  };
+
+  const showAllCategories = () => {
+    setFilteredData([]);
+    setSearchTerm("");
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return isNaN(date) ? "Invalid Date" : format(date, "yyyy-MM-dd");
+  };
+
+  const handleEdit = (id) => {
+    console.log(`Edit category with ID: ${id}`);
+    // Navigate to an edit page or open a modal for editing
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this category?")) {
+      try {
+        await axios.delete(`${CATEGORY_URL}/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCategories((prevCategories) =>
+          prevCategories.filter((category) => category.id !== id)
+        );
+      } catch (err) {
+        console.error("Failed to delete category", err);
+        setErrMsg("Failed to delete category.");
+      }
+    }
+  };
 
   return (
-    <>
-    { categories ?
+    <motion.div
+      className="md:ml-[20%] mt-2"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="text-xl font-bold text-center text-white bg-indigo-500 p-4">
+        <h1>Admin Category Dashboard</h1>
+      </div>
 
-    <section className=" md:ml-[20%] w-[80vw] md:absolute md:left-1/2 md:-translate-x-1/2 mt-28">
-        {fromSearch ?  <h1 className=" text-center font-bold py-3 text-white bg-indigo-600 font-mono "> {categories.length} records found </h1>: null}
-        
-        <div className="mx-1">
-            <input onKeyDown={(e)=>(e.key === "Enter" ? searchProductCategory(e,searchId) : null)} placeholder="name" className="w-96 text-lg p-2 h-11 bg-indigo-200 text-gray-700" type="text" value={searchId} onChange={e=>setSearchId(e.target.value)}/>
-            <button  onClick={(e) => searchProductCategory(e, searchId)} className="h-11 w-20 p-2 ml-1 text-lg bg-indigo-300 rounded-md text-gray-700 hover:bg-indigo-500 hover:translate-y-[1px] ">Search</button>
-            <button className=" m-1 p-3 bg-indigo-300 rounded-md" onClick={(e) => searchProductCategory(e, name)}>Show All</button>
+      <div className="relative text-teal-800 text-lg md:text-xl p-3">
+        <div className="relative w-[90%] mx-auto">
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => (e.key === "Enter" ? searchItem() : null)}
+            placeholder="Search by category name, created or updated dates..."
+            className="w-full border px-6 py-4 rounded-md shadow-md shadow-sky-200 outline-2 outline-indigo-300"
+            type="text"
+          />
+          {searchTerm && (
+            <button className="absolute left-3 top-5" onClick={() => setSearchTerm("")}>
+              <FaX className="text-indigo-300 hover:text-indigo-500" />
+            </button>
+          )}
+          <div
+            onClick={searchItem}
+            className="absolute top-1 -right-2 bg-indigo-200 hover:bg-indigo-300 rounded-lg"
+          >
+            <button className="rounded-lg p-3">
+              <MdManageSearch className="text-teal-800 text-3xl" />
+            </button>
+          </div>
         </div>
 
-        <div className="my-3">
-            <Link  to= {MANAGER_ADD_CATEGORY_URL} className=" w-11 h-4 p-2 border text-white shadow rounded-lg bg-indigo-500" >Add a category</Link>
+        <div className="flex mt-2 justify-center space-x-5 text-sm">
+          <button
+            onClick={showAllCategories}
+            className="rounded-md bg-rose-400 text-white p-3 hover:bg-rose-800"
+          >
+            Show All
+          </button>
         </div>
-        <ul className="md:hidden">
-            {categories.map((category,i) => {
-                return (
-                    <div key={i} className="border-b-2 text-[17px] font-medium py-3">
-                        <p className="flex text-gray-800">Name: <span className="ml-2 text-blue-900">{category.name}</span></p>
-                        <div className="mt-3">
-                            <button ><Link  to= {`/admin/category/edit?categoryId=${category.id}`}  className=" p-3 border shadow rounded-lg bg-green-300" >Modifier</Link> </button>
-                            <button onClick={()=>deleteCategory(category.id)} className=" ml-4 p-3 border shadow rounded-lg bg-red-400" >Supprimer</button>
-                        </div>                        
-                    </div>
-                )
-            })}          
-        </ul>
+      </div>
 
-        <table className=" mx-1 overflow-hidden hidden md:inline  bg-zinc-100 my-3">
-            <thead className=" flex border-b-2 border-indigo-200">
-                <tr className=" mx-1 flex space-x-40">
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody className="">
-             {categories.map((category,i)=> {
-                return (
-              
-                <tr key={i} className=" mx-1 flex space-x-28 my-2 mb-6 border-b-2 ">
-                    <td>{category.name}</td>
-                    <td><Link  to= {`/admin/category/edit?cooperativeId=${category.id}`}  className=" w-6 h-2 p-2 border shadow rounded-lg bg-green-300" >Edit</Link> </td>
-                    <td><button onClick={()=>deleteCategory(category.id)} className=" ml-4 p-3 border shadow rounded-lg bg-red-400" >Delete</button> </td>             
-                </tr>
-                )
-             })}
-            </tbody>
-        </table>    
-    </section>
+      <div className="py-1 px-2 md:px-4">
+        <table className="w-full table-auto border-collapse">
+          <thead>
+            <tr className="border bg-gray-200">
+              <th className="px-2 py-1">Name</th>
+              <th className="px-2 py-1">Created At</th>
+              <th className="px-2 py-1">Updated At</th>
+              <th className="px-2 py-1">File</th>
+              <th className="px-2 py-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentData.map((category, i) => (
+              <motion.tr
+                key={i}
+                className="border hover:bg-gray-100"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <td className="px-2 py-1">{category.name}</td>
+                <td className="px-2 py-1">{formatDate(category.createdAt)}</td>
+                <td className="px-2 py-1">{formatDate(category.updatedAt)}</td>
+                <td className="px-2 py-1">
+                  {category.file ? (
+                    <a
+                      href={category.file}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-500 underline"
+                    >
+                      View File
+                    </a>
+                  ) : (
+                    "No file available"
+                  )}
+                </td>
+                <td className="px-2 py-1 flex justify-center space-x-3">
+                  <button
+                    onClick={() => handleEdit(category.id)}
+                    className="text-green-500 hover:text-green-700"
+                  >
+                    <MdEdit size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(category.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <MdDelete size={20} />
+                  </button>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
 
-  : 
-  
-  <div>
-    <h1>No Category Exist yet</h1>
-  </div>
-  
-  }
-    </>
-  )
-}
+        <Pagination
+          itemsPerPage={itemsPerPage}
+          totalItems={filteredData.length || categories.length}
+          paginate={paginate}
+          currentPage={currentPage}
+        />
+      </div>
+    </motion.div>
+  );
+};
 
-export default AdminCategory
+export default AdminCategory;
+

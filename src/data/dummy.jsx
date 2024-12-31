@@ -32,6 +32,18 @@ export const links = [
                 name: 'order-items',
                 baseUrl: 'manager',
                 icon: <MdInsertEmoticon/>
+            },
+
+            {
+                name: 'categories',
+                baseUrl: '/manager',
+                icon: <MdCategory/>
+            },
+
+            {
+                name: 'product-categories',
+                baseUrl: '/manager',
+                icon: <MdOutlineCategory/>
             }
         ]
     },

@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { MdCalendarViewDay, MdCancel, MdOutlineMenu } from 'react-icons/md';
+import { MdCalendarViewDay, MdCancel, MdOutlineMenu, MdSettingsApplications } from 'react-icons/md';
 import { FiShoppingCart } from 'react-icons/fi';
 import { MdChat, MdKeyboardArrowDown } from 'react-icons/md';
 import { MdNotificationsActive } from 'react-icons/md';
 import { useStateContext } from '../contexts/ContextProvider';
-import { Cart, Chat, Map, Notification, UserProfile } from './';
+import { Cart, Chat, Map, Notification, Settings, UserProfile } from './';
 import { selectCurrentUser } from '../slices/auth/authSlice.js';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../slices/auth/authSlice.js'; // Import the logout action
@@ -90,6 +90,14 @@ const Navbar = () => {
           icon={<MdNotificationsActive />}
           customFunc={() => handleClick('notification')}
         />
+        <NavButton
+          className="flex"
+          dotColor="red"
+          title="settings"
+          color="white"
+          icon={<MdSettingsApplications/>}
+          customFunc={()=> handleClick('settings')}
+        />
       </div>
 
       {/* User Profile Section */}
@@ -126,7 +134,7 @@ const Navbar = () => {
     <div className='flex flex-row-reverse fixed top-0 right-2 z-50'>
       {/** Modals for Cart, Chat, Notification, User Profile */}
       {isClicked.cart && <ViewCart />}
-      {isClicked.chat && <Chat />}
+      {isClicked.settings && <Settings/>}
       {isClicked.notification && <Notification />}
       {isClicked.userProfile && <UserProfile />}
 

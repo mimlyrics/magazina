@@ -107,8 +107,9 @@ function App() {
 
 
               <Route path='/manager/category/add' element={<AdminAddCategory/>}/>
+              <Route path='/manager/categories' element={<AdminCategory/>}/>
               <Route path='/manager/category/edit' element={<AdminEditCategory/>}/>
-              <Route path='/manager/product-category' element={<AdminProductCategory/>}/>
+              <Route path='/manager/product-categories' element={<AdminProductCategory/>}/>
 
               <Route path='/manager/stocks/add' element={<AdminAddStockByProductId/>}/>
                       <Route

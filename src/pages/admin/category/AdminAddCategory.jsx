@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { MdFileUpload } from 'react-icons/md';
 import axios from 'axios';
 import { CATEGORY_URL } from '../../../routes/serverRoutes';
+import { useSelector } from 'react-redux';
+import { selectCurrentToken } from '../../../slices/auth/authSlice';
 
 const AdminAddCategory = () => {
   const [categoryName, setCategoryName] = useState('');
@@ -12,6 +14,7 @@ const AdminAddCategory = () => {
   const [success, setSuccess] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const token = useSelector(selectCurrentToken);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -35,15 +38,24 @@ const AdminAddCategory = () => {
       return;
     }
 
+
     const formData = new FormData();
-    formData.append('category', JSON.stringify({ name: categoryName }));
+    formData.append('name', categoryName);
     formData.append('file', file);
-    console.log(formData);
+    console.log(file);
+    console.log(categoryName);
+
+     // Log FormData contents
+  const formDataObject = {};
+  formData.forEach((value, key) => {
+    formDataObject[key] = value;
+  });
+  console.log('FormData Object:', formDataObject);
 
     try {
       setIsUploading(true);
       const response = await axios.post(CATEGORY_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer: ${token}` }, withCredentials: true,
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
@@ -51,6 +63,7 @@ const AdminAddCategory = () => {
           setUploadProgress(percentCompleted);
         },
       });
+      
       console.log(response);
       setSuccess('Category added successfully!');
       setCategoryName('');
@@ -58,6 +71,7 @@ const AdminAddCategory = () => {
       setFilePreview('');
       setUploadProgress(0);
     } catch (error) {
+        console.log(formData);
       setError('Failed to add category. Please try again.');
     } finally {
       setIsUploading(false);

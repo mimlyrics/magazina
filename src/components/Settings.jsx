@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '../slices/auth/authSlice';
 
-const Settings = ({ user }) => {
+const Settings = () => {
   const [theme, setTheme] = useState('light');
   const [birthdate, setBirthdate] = useState('');
   const [occupation, setOccupation] = useState('');
   const [gender, setGender] = useState('');
   const [notifications, setNotifications] = useState(true);
 
-  
+  const userInfo = useSelector(selectCurrentUser);
+  console.log(userInfo);
 
   // Check user role and render settings accordingly
-  const isCustomer = user?.role === 'customer';
-  const isAdmin = user?.role === 'admin';
-  const isSupplier = user?.role === 'supplier';
+  const isCustomer = userInfo?.role === 'USER';
+  const isAdmin = userInfo?.role === 'ADMIN';
+  const isSupplier = userInfo?.role === 'SUPPLIER';
 
   const handleThemeChange = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');

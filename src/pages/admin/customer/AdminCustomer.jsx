@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
-import { CUSTOMER_URL } from "../../../routes/clientRoutes";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../slices/auth/authSlice";
 import { MdManageSearch } from "react-icons/md";
 import { FaX } from "react-icons/fa6";
 import Pagination from "../../../components/Pagination";
+import { CUSTOMER_URL } from "../../../routes/serverRoutes";
+import { format } from "date-fns"; // Import date-fns for date formatting
 
 const AdminCustomer = () => {
   const [customers, setCustomers] = useState([]);
@@ -30,10 +31,14 @@ const AdminCustomer = () => {
     const fetchCustomers = async () => {
       try {
         const res = await axios.get(CUSTOMER_URL, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           withCredentials: true,
         });
         setCustomers(res?.data);
+        console.log(res?.data);
         setFilteredData([]);
       } catch (err) {
         setErrMsg(err?.response?.data?.error || "Failed to fetch customers");
@@ -52,8 +57,7 @@ const AdminCustomer = () => {
           customer.city.toLowerCase().includes(lowercasedSearchTerm) ||
           customer.country.toLowerCase().includes(lowercasedSearchTerm) ||
           customer.postal_code.toLowerCase().includes(lowercasedSearchTerm) ||
-          customer.state.toLowerCase().includes(lowercasedSearchTerm) ||
-          customer.user_id.toString().includes(lowercasedSearchTerm)
+          customer.state.toLowerCase().includes(lowercasedSearchTerm)
       );
       setFilteredData(results);
     }
@@ -62,6 +66,22 @@ const AdminCustomer = () => {
   const showAllCustomers = () => {
     setFilteredData([]);
     setSearchTerm("");
+  };
+
+  const truncateText = (text, maxLength) => {
+    return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  };
+
+  const parseDate = (dateArray) => {
+    try {
+      if (Array.isArray(dateArray)) {
+        const [year, month, day, hour, minute, second, ms] = dateArray;
+        return format(new Date(year, month - 1, day, hour, minute, second, ms / 1e6), "yyyy-MM-dd");
+      }
+      return "Invalid date";
+    } catch {
+      return "Invalid date";
+    }
   };
 
   return (
@@ -76,7 +96,7 @@ const AdminCustomer = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => (e.key === "Enter" ? searchItem() : null)}
-            placeholder="Search by address, city, country, postal code, state, user ID..."
+            placeholder="Search by address, city, country, postal code, state..."
             className="w-full border px-6 py-4 mx-2 rounded-md shadow-md shadow-sky-200 outline-2 outline-indigo-300"
             type="text"
           />
@@ -118,22 +138,20 @@ const AdminCustomer = () => {
               <th>Postal Code</th>
               <th>State</th>
               <th>Updated At</th>
-              <th>User ID</th>
             </tr>
           </thead>
           <tbody>
             {currentData.map((customer, i) => (
               <tr key={i} className="border">
-                <td>{customer.address}</td>
+                <td>{truncateText(customer.address, 20)}</td>
                 <td>{customer.city}</td>
                 <td>{customer.country}</td>
-                <td>{new Date(customer.created_at).toLocaleDateString()}</td>
+                <td>{parseDate(customer.created_at)}</td>
                 <td>{customer.latitude}</td>
                 <td>{customer.longitude}</td>
                 <td>{customer.postal_code}</td>
                 <td>{customer.state}</td>
-                <td>{new Date(customer.updated_at).toLocaleDateString()}</td>
-                <td>{customer.user_id}</td>
+                <td>{parseDate(customer.updated_at)}</td>
               </tr>
             ))}
           </tbody>
