@@ -38,3 +38,6 @@ export {default as PurchaseCart} from './cart/PurchaseCart.jsx';
 export {default as AdminOrderItem} from './admin/orderItem/AdminOrderItem.jsx';
 export {default as AdminOrder} from './admin/order/AdminOrder';
 export {default as AdminCustomer} from './admin/customer/AdminCustomer.jsx';
+export {default as AdminAddCategory} from './admin/category/AdminAddCategory.jsx';
+export {default as AdminProductCategory} from './admin/category/AdminProductCategory.jsx';
+export {default as AdminEditCategory} from './admin/category/AdminEditCategory.jsx';

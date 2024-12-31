@@ -51,10 +51,9 @@ const AdminOrder = () => {
         (order) =>
           order.payment_method.toLowerCase().includes(lowercasedSearchTerm) ||
           order.customer_id.toString().includes(lowercasedSearchTerm) ||
-          formatDate(order.created_at).includes(lowercasedSearchTerm) ||
-          formatDate(order.updated_at).includes(lowercasedSearchTerm) ||
-          formatDate(order.order_date).includes(lowercasedSearchTerm) ||
-          order.total_cost.toString().includes(lowercasedSearchTerm)
+          formatDate(order.createdAt).includes(lowercasedSearchTerm) ||
+          formatDate(order.updatedAt).includes(lowercasedSearchTerm) ||
+          order.totalCost.toString().includes(lowercasedSearchTerm)
       );
       setFilteredData(results);
     }
@@ -131,7 +130,6 @@ const AdminOrder = () => {
           <thead>
             <tr className="border py-2">
               <th>Created At</th>
-              <th>Order Date</th>
               <th>Total Cost</th>
               <th>Updated At</th>
               <th>Customer ID</th>
@@ -141,12 +139,11 @@ const AdminOrder = () => {
           <tbody>
             {currentData.map((order, i) => (
               <tr key={i} className="border">
-                <td>{formatDate(order.created_at)}</td>
-                <td>{formatDate(order.order_date)}</td>
-                <td>{order.total_cost}</td>
-                <td>{formatDate(order.updated_at)}</td>
-                <td>{order.customer_id}</td>
-                <td>{order.payment_method}</td>
+                <td>{formatDate(order.createdAt)}</td>
+                <td>{order.totalCost}</td>
+                <td>{formatDate(order.updatedAt)}</td>
+                <td>{order.customerId}</td>
+                <td>{order.paymentMethod}</td>
               </tr>
             ))}
           </tbody>

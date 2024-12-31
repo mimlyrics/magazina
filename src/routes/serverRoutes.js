@@ -11,6 +11,7 @@ const SERVER_URL = {
     LOGIN_URL: `${SU}/auth/authenticate`,
     USERS_URL : `${SU}/users`,
     PRODUCT_CATEGORY_URL : `${SU}/product_categories`,
+    CATEGORY_URL: `${SU}/categories`,
     PRODUCT_URL : `${SU}/products`,
     STOCK_URL: `${SU}/stocks`,
     PRODUCT_STOCK: `${SU}/stocks/add`,
@@ -18,9 +19,10 @@ const SERVER_URL = {
     ORDER_ITEM_URL : `${SU}/orders/order-items`,
     SUPPLIER_URL: `${SU}/suppliers`,
     STATUS_URL: `${SU}/statuses`,
-    CUSTOMER_URL: `${SU}/customers`
+    CUSTOMER_URL: `${SU}/customers`,
+    MOVEMENT_TYPE_URL: `${SU}/movement-types`
 }
 
-export const  {REGISTER_URL, LOGIN_URL, STATUS_URL, USERS_URL, PRODUCT_CATEGORY_URL, PRODUCT_URL, STOCK_URL, ORDER_URL, ORDER_ITEM_URL, SUPPLIER_URL} = SERVER_URL;
+export const  {REGISTER_URL, LOGIN_URL, MOVEMENT_TYPE_URL, CATEGORY_URL, STATUS_URL, USERS_URL, PRODUCT_CATEGORY_URL, PRODUCT_URL, STOCK_URL, ORDER_URL, ORDER_ITEM_URL, SUPPLIER_URL} = SERVER_URL;
 //console.log(USERS_URL, BASE_URL);
 export default BASE_URL;

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import { useSelector } from "react-redux";
 import { selectCurrentToken, selectCurrentUser } from "../../../slices/auth/authSlice";
-import { STOCK_URL, SUPPLIER_URL, PRODUCT_CATEGORY_URL, STATUS_URL } from "../../../routes/serverRoutes";
+import { STOCK_URL, SUPPLIER_URL, PRODUCT_CATEGORY_URL, STATUS_URL, MOVEMENT_TYPE_URL } from "../../../routes/serverRoutes";
 import AdminCreateProduct from "./AdminCreateProduct"; // Adjusted import based on structure
 
 const AdminAddStock = () => {
@@ -12,6 +12,8 @@ const AdminAddStock = () => {
     status: "",
     sku: "",
     productId: "",
+    movementType: "",
+    movementReason: "",
   });
   const [product, setProduct] = useState({
     id: "",
@@ -25,22 +27,20 @@ const AdminAddStock = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [productCategories, setProductCategories] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [movementTypes, setMovementTypes] = useState([]); // Added state for movement types
   const [submittedProductData, setSubmittedProductData] = useState(null); // To receive product data from AdminCreateProduct
-  //const token = useSelector(selectCurrentToken);
   const userInfo = useSelector(selectCurrentUser);
   const token = userInfo.token;
-  //console.log(token);
   const [errMsg, setErrMsg] = useState("");
-  const [step, setStep] = useState(1); // Tracks the current step
   const [success, setSuccess] = useState(false);
+  const [step, setStep] = useState(1); // Tracks the current step
 
-
-  // Fetching suppliers and products on initial load
+  // Fetching suppliers, products, statuses, and movement types on initial load
   useEffect(() => {
     const fetchData = async () => {
       try {
         const supplierRes = await axios.get(SUPPLIER_URL, {
-          headers: {"Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         });
         setSuppliers(supplierRes.data || []);
 
@@ -48,6 +48,17 @@ const AdminAddStock = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProductCategories(productRes.data || []);
+
+        const statusRes = await axios.get(STATUS_URL, {
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        });
+        setStatuses(statusRes.data || []);
+
+        // Fetching movement types
+        const movementTypeRes = await axios.get(MOVEMENT_TYPE_URL, {
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        });
+        setMovementTypes(movementTypeRes.data || []);
       } catch (err) {
         setErrMsg(err?.response?.data?.error || "Error fetching data.");
       }
@@ -55,52 +66,50 @@ const AdminAddStock = () => {
     fetchData();
   }, [token]);
 
-
-    useEffect(() => {
-    const fetchStatuses = async () => {
-      try {
-        const response = await axios.get(STATUS_URL, {
-          headers: {"Content-Type": "application/json", Authorization: `Bearer ${token}` }, withCredentials: true });
-        setStatuses(response.data); 
-        console.log(statuses);
-      } catch (error) {
-        console.error("Error fetching statuses:", error);
-      }
-    };
-
-    fetchStatuses();
-  }, []);
-
-  // Handling input changes
+  // Handling input changes for stock
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setStock((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handling input changes for product
   const handleInputChange2 = (e) => {
-    const {name, value} = e.target;
-    setProduct(prev => ({...prev, [name]: value}));
-  }
+    const { name, value } = e.target;
+    setProduct((prev) => ({ ...prev, [name]: value }));
+  };
 
   // Handling form submission for stock
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(stock);
     try {
-      const response = await axios.post(STOCK_URL,{quantity: stock.quantity, reorderLevel: stock.reorderLevel, status: stock.status, sku: stock.status,  product: { id: stock.productId }}, {
-        headers: {"Content-Type": "application/json", Authorization: `Bearer ${token}` }, withCredentials: true
-      });
+      const response = await axios.post(
+        STOCK_URL,
+        {
+          quantity: stock.quantity,
+          reorderLevel: stock.reorderLevel,
+          status: stock.status,
+          sku: stock.sku,
+          product: { id: stock.productId },
+          movementType: stock.movementType, // Include movementType
+          movementReason: stock.movementReason, // Include movementReason
+        },
+        {
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
       console.log(response);
       if (response) {
         setSuccess("Stock added successfully");
         setErrMsg(false);
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
+        setTimeout(() => {
+          setSuccess(false);
+        }, 3000);
       }
     } catch (err) {
       console.log(err);
-      setErrMsg(err?.response?.data?.error || "An error occurred.")
+      setErrMsg(err?.response?.data?.error || "An error occurred.");
     }
   };
 
@@ -108,7 +117,7 @@ const AdminAddStock = () => {
   useEffect(() => {
     if (submittedProductData !== null) {
       setStep(2); // Move to Step 2 if data is submitted
-      setStock((prev) => ({...prev, ["productId"]: submittedProductData?.id || null}));
+      setStock((prev) => ({ ...prev, productId: submittedProductData?.id || null }));
     }
   }, [submittedProductData]);
 
@@ -148,13 +157,10 @@ const AdminAddStock = () => {
 
         {step === 2 && submittedProductData && (
           <div>
-
             <div className="text-2xl text-center mb-4">Add New Stock</div>
             {errMsg && <div className="animate-bounce text-red-600 font-semibold mb-4">{errMsg}</div>}
             {success && <div className="animate-bounce text-indigo-600 font-semibold mb-4">{success}</div>}
             <form onSubmit={handleSubmit}>
-              {/* Supplier Select */}
-
               {/* Stock Fields */}
               <div className="my-3">
                 <label htmlFor="quantity" className="block text-lg">Quantity</label>
@@ -190,7 +196,31 @@ const AdminAddStock = () => {
                     </option>
                   ))}
                 </select>
-              </div>              
+              </div>
+
+              <div className="my-3">
+                <label htmlFor="movementType">Movement Type</label>
+                <select name="movementType" id="movementType" value={stock.movementType} onChange={handleInputChange}>
+                  <option value="">Select Movement Type</option>
+                  {movementTypes.map((movementType) => (
+                    <option key={movementType.name} value={movementType.name}>
+                      {movementType.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="my-3">
+                <label htmlFor="movementReason">Movement Reason</label>
+                <input
+                  type="text"
+                  id="movementReason"
+                  name="movementReason"
+                  value={stock.movementReason}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
 
               <div className="my-3">
                 <label htmlFor="sku" className="block text-lg">SKU</label>
@@ -205,7 +235,7 @@ const AdminAddStock = () => {
               </div>
 
               <div className="my-3">
-                <label htmlFor="id" className="block text-lg">Product</label>
+                <label htmlFor="product" className="block text-lg">Product</label>
                 <input
                   type="text"
                   id="name"
@@ -217,19 +247,7 @@ const AdminAddStock = () => {
               </div>
 
               <div className="my-3">
-                <label htmlFor="id" className="block text-lg">Price</label>
-                <input
-                  type="text"
-                  id="price"
-                  name="price"
-                  value={submittedProductData.price || ""}
-                  className="w-full p-2 border rounded-md"
-                  readOnly
-                />
-              </div>
-
-              <div className="my-3">
-                <label htmlFor="id" className="block text-lg">Product Category</label>
+                <label htmlFor="productCategory" className="block text-lg">Product Category</label>
                 <input
                   type="text"
                   id="productCategory"
@@ -240,7 +258,6 @@ const AdminAddStock = () => {
                 />
               </div>
 
-              {/* Submit Button */}
               <div className="my-4 text-center">
                 <button
                   type="submit"
@@ -248,7 +265,6 @@ const AdminAddStock = () => {
                 >
                   Add Stock
                 </button>
-
               </div>
             </form>
           </div>
@@ -259,3 +275,4 @@ const AdminAddStock = () => {
 };
 
 export default AdminAddStock;
+

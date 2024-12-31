@@ -23,7 +23,10 @@ import { Ecommerce, Orders, Calendar, Employees, Stacked,
    PurchaseCart,
    AdminOrder,
    AdminCustomer,
-   AdminOrderItem} from './pages';
+   AdminOrderItem,
+   AdminAddCategory,
+   AdminEditCategory,
+   AdminProductCategory} from './pages';
 
 import { useStateContext } from './contexts/ContextProvider';
 function App() {
@@ -70,8 +73,8 @@ function App() {
 
 
             <Route>
-              <Route path='/manager/category/add' element={<AddCategory/>}/>
-              <Route path='/manager/category' element={<AdminCategory/>}/>
+              <Route path='/manager/product-category/add' element={<AddCategory/>}/>
+              <Route path='/manager/product-category' element={<AdminCategory/>}/>
 
               <Route path='/manager/products' element={<AdminProduct/>} />
               <Route path='/manager/products/add' element={<AdminAddProduct/>}/>
@@ -101,6 +104,11 @@ function App() {
               <Route path='/manager/orders' element={<AdminOrder/>}/>
               <Route path='/manager/customers' element={<AdminCustomer/>}/>
               <Route path='/manager/order-items' element={<AdminOrderItem/>}/>
+
+
+              <Route path='/manager/category/add' element={<AdminAddCategory/>}/>
+              <Route path='/manager/category/edit' element={<AdminEditCategory/>}/>
+              <Route path='/manager/product-category' element={<AdminProductCategory/>}/>
 
               <Route path='/manager/stocks/add' element={<AdminAddStockByProductId/>}/>
                       <Route

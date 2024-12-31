@@ -9,18 +9,30 @@ const initialState = {
     notification: false,
 }
 
+const navState = {
+    chat: false,
+    cart: false,
+    userProfile: false,
+    notification: false,
+    settings: false
+}
+
 
 
 export const ContextProvider = ({children}) => {
     const [activeMenu, setActiveMenu] = useState(true);
-    const [isClicked, setIsClicked] = useState(initialState);
+    const [isClicked, setIsClicked] = useState(navState);
     const [screenSize, setScreenSize] = useState(undefined);
     const [state, dispatch] = useReducer(cartReducer, initialState.cart);
 
 
     const handleClick = (clicked) => {
-        setIsClicked({...initialState, [clicked]: true});
-    }
+        setIsClicked((prevState) => ({
+            ...initialState,
+            [clicked]: !prevState[clicked], // Toggle the visibility
+        }));
+    };
+
 
     useEffect(() => {
         const handleResize = () => setScreenSize(window.innerWidth);
