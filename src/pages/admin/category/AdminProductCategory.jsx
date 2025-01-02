@@ -73,7 +73,7 @@ const AdminProductCategory = () => {
 
   return (
     <motion.div
-      className="md:ml-[20%] mt-2"
+      className="mt-2"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}

@@ -8,6 +8,7 @@ import { MdAllOut, MdCalculate, MdManageSearch } from "react-icons/md";
 import { FaPlus, FaX } from "react-icons/fa6";
 import Pagination from "../../../components/Pagination";
 import { ADMIN_ADD_SUPPLIER_URL } from "../../../routes/clientRoutes";
+import { format } from "date-fns"; // Import date-fns format function
 
 const AdminSupplier = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -66,10 +67,12 @@ const AdminSupplier = () => {
           supplier.name.toLowerCase().includes(lowercasedSearchTerm) ||
           supplier.address.toLowerCase().includes(lowercasedSearchTerm) ||
           supplier.taxId.toLowerCase().includes(lowercasedSearchTerm) ||
-          supplier.user.firstname.toLowerCase().includes(lowercasedSearchTerm) ||
-          supplier.user.lastname.toLowerCase().includes(lowercasedSearchTerm) ||
-          supplier.user.email.toLowerCase().includes(lowercasedSearchTerm) ||
-          supplier.user.role.toLowerCase().includes(lowercasedSearchTerm)
+          (supplier.user && ( // Check if supplier.user exists
+            supplier.user.firstname.toLowerCase().includes(lowercasedSearchTerm) ||
+            supplier.user.lastname.toLowerCase().includes(lowercasedSearchTerm) ||
+            supplier.user.email.toLowerCase().includes(lowercasedSearchTerm) ||
+            supplier.user.role.toLowerCase().includes(lowercasedSearchTerm)
+          ))
       );
       setFilteredData(results);
     }
@@ -80,8 +83,14 @@ const AdminSupplier = () => {
     setSearchTerm("");
   };
 
+  // Function to format the createdAt array into a readable date string
+  const formatCreatedAt = (createdAtArray) => {
+    const date = new Date(createdAtArray[0], createdAtArray[1] - 1, createdAtArray[2], createdAtArray[3], createdAtArray[4], createdAtArray[5], createdAtArray[6]);
+    return format(date, "yyyy-MM-dd HH:mm:ss"); // Change this format as needed
+  };
+
   return (
-    <div className="md:ml-[20%] mt-2">
+    <div className=" mt-2">
       <div className="text-xl font-bold text-center text-white bg-indigo-500 p-4">
         <h1>Admin Supplier Dashboard</h1>
       </div>
@@ -144,6 +153,7 @@ const AdminSupplier = () => {
               <th>User Lastname</th>
               <th>User Email</th>
               <th>User Role</th>
+              <th>Created At</th> {/* Add Created At column */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -153,10 +163,11 @@ const AdminSupplier = () => {
                 <td>{supplier.name}</td>
                 <td>{supplier.address}</td>
                 <td>{supplier.taxId}</td>
-                <td>{supplier.user.firstname}</td>
-                <td>{supplier.user.lastname}</td>
-                <td>{supplier.user.email}</td>
-                <td>{supplier.user.role}</td>
+                <td>{supplier.user ? supplier.user.firstname : "N/A"}</td> {/* Check if user exists */}
+                <td>{supplier.user ? supplier.user.lastname : "N/A"}</td> {/* Check if user exists */}
+                <td>{supplier.user ? supplier.user.email : "N/A"}</td> {/* Check if user exists */}
+                <td>{supplier.user ? supplier.user.role : "N/A"}</td> {/* Check if user exists */}
+                <td>{supplier.createdAt ? formatCreatedAt(supplier.createdAt) : "N/A"}</td> {/* Format createdAt */}
                 <td>
                   <button
                     onClick={() => deleteSupplier(supplier.id)}

@@ -11,7 +11,7 @@ const PROTECT_ADMIN_URL = `${BASE_URL}/api/v1/protected/get-role`;
 const RequireAdmin = () => {
   const token = useSelector(selectCurrentToken);
   const [errMsg, setErrMsg] = useState("");
-  const [isAdmin, setIsAdmin] = useState(null);  // Initially, set to null to indicate that it's not yet determined
+  const [isAdmin, setIsAdmin] = useState("USER");  // Initially, set to null to indicate that it's not yet determined
   const [statusCode, setStatusCode] = useState(null);  // Set to null initially
 
   useEffect(() => {
@@ -27,9 +27,7 @@ const RequireAdmin = () => {
       }
     };
 
-    if (token) {
-      detectAdmin();
-    }
+    detectAdmin();
   }, [token]);
 
   if (isAdmin === null) {
@@ -43,11 +41,6 @@ const RequireAdmin = () => {
 
       {/* If the role is not "ADMIN", show the Unauthorized error */}
       {(isAdmin === "USER" || isAdmin === "SUPPLIER" || isAdmin === "MANAGER") && (
-        <ErrorMiddleware statusCode={"401"} key={errMsg} errMsg={"Unauthorized"} />
-      )}
-
-      {/* If the role is null or undefined, show the Unauthorized error */}
-      {isAdmin === null && (
         <ErrorMiddleware statusCode={"401"} key={errMsg} errMsg={"Unauthorized"} />
       )}
     </div>

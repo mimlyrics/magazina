@@ -3,55 +3,52 @@ import { selectCurrentToken } from "../../slices/auth/authSlice";
 import { useSelector } from "react-redux";
 import { Outlet } from "react-router";
 import axios from "../../api/axios";
-import BASE_URL from "../../routes/serverRoutes";
 import ErrorMiddleware from "./ErrorMiddleware";
+import BASE_URL from "../../routes/serverRoutes";
 
-// Define the endpoint to get user role
 const PROTECT_MANAGER_URL = `${BASE_URL}/api/v1/protected/get-role`;
 
 const RequireManager = () => {
-  const token = useSelector(selectCurrentToken);  // Get token from Redux store
-  const [errMsg, setErrMsg] = useState("");  // To store error message
-  const [isManager, setIsManager] = useState(null);  // To store role status (null initially)
-  const [statusCode, setStatusCode] = useState(null);  // To store HTTP status code
+  const token = useSelector(selectCurrentToken); // Get token from Redux store
+  const [errMsg, setErrMsg] = useState(""); // To store error message
+  const [isManager, setIsManager] = useState("USER"); // Initially, set to null to indicate undetermined status
+  const [statusCode, setStatusCode] = useState(null); // Initially set to null
 
   useEffect(() => {
-    const detectRole = async () => {
+    const detectManager = async () => {
       try {
         const res = await axios.get(PROTECT_MANAGER_URL, {
-          headers: { withCredentials: true, Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         });
-
-        setIsManager(res.data);  // Assuming res.data is the role (e.g., "MANAGER")
+        setIsManager(res.data); // Assuming the server responds with the role (e.g., "MANAGER")
+        console.log(res.data);
       } catch (err) {
-        // Handling error, set status code and error message
-        setStatusCode(err?.response?.status || 500);  // Set error status code
-        setErrMsg(err?.response?.data?.error || "Not connected to the internet");
+        setStatusCode(err?.response?.status); // Set status code from error response
+        setErrMsg(err?.response?.data?.error || "Unauthorized");
       }
     };
 
-    if (token) {
-      detectRole();  // Call function to check role if token exists
-    }
-  }, [token]);  // Dependency on token, run again if token changes
+    detectManager();
+  }, [token]);
 
-  // If role check is still in progress, show loading state
   if (isManager === null) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // Loading state while role is being fetched
   }
 
-  // Render protected content if the user is a manager
-  if (isManager === "MANAGER") {
-    return <Outlet />;
-  }
-
-  // Show Unauthorized error if the user is not a manager
   return (
-    <ErrorMiddleware
-      statusCode={statusCode || 401}  // Default to 401 if status code is not set
-      key={errMsg}
-      errMsg={errMsg || "Unauthorized"}
-    />
+    <div>
+      {/* If the role is "MANAGER", render the Outlet */}
+      {(isManager === "MANAGER" || isManager === "ADMIN") && <Outlet />}
+
+      {/* If the role is not "MANAGER", show the Unauthorized error */}
+      {(isManager !== "MANAGER" && isManager !== "ADMIN") && (
+        <ErrorMiddleware
+          statusCode={statusCode || 401} // Default to 401 if no status code is available
+          errMsg={errMsg || "Unauthorized"}
+        />
+      )}
+    </div>
   );
 };
 

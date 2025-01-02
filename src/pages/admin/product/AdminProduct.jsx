@@ -80,7 +80,7 @@ const AdminProduct = () => {
   };
 
   return (
-    <div className="md:ml-[20%] mt-2">
+    <div className="mt-2">
       <div className="text-xl font-bold text-center text-white bg-indigo-500 p-4">
         <h1>ADMIN product dashboard | statistics</h1>
       </div>

@@ -6,8 +6,7 @@ import { FaRegEyeSlash, FaRegEye, FaX, FaUser } from "react-icons/fa6";
 import axios from "../../api/axios";
 import { LOGIN_URL } from "../../routes/serverRoutes";
 import { selectCurrentToken } from "../../slices/auth/authSlice";
-const CLIENT_URL = "api/v1";
-
+import BASE_URL from "../../routes/clientRoutes";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -48,7 +47,7 @@ const Login = () => {
       //console.log(res);
       dispatch(setCredentials({...res?.data}));
       if(res) {
-        window.location.href = CLIENT_URL;
+        window.location.href = BASE_URL;
       }
     }catch(error) {
       //console.log(error?.data?.mport { logout } from '../slices/auth/authActions';mport { logout } from '../slices/auth/authActions';message || error.error);
