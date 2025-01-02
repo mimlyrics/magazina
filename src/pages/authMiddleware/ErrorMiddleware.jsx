@@ -1,5 +1,5 @@
 
-const ErrorMiddleware = ({errMsg}) => {
+const ErrorMiddleware = ({errMsg, statusCode}) => {
   return (
     <section className="md:ml-[20%] md:h-screen">
         {errMsg ? 
@@ -7,7 +7,7 @@ const ErrorMiddleware = ({errMsg}) => {
                 md:text-3xl font-bold text-gray-800 bg-violet-100">
                 <div className="relative w-[80vw] h-[80vh]">
                     <h1 className=" absolute top-[35vh] mx-4 md:mx-60">{errMsg}</h1>  
-                    <h1 className=" text-red-500 top-[50vh] absolute mx-4 md:mx-96">401</h1>    
+                    <h1 className=" text-red-500 top-[50vh] absolute mx-4 md:mx-96">{statusCode}</h1>    
                 </div>
             </div> : null
         }    

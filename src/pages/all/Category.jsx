@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import axios from "../api/axios";
-import BASE_URL, { CATEGORY_URL} from "../routes/serverRoutes";
-import defaultImage from "../../public/vite.svg"; // Path to your default image
-import { Link } from 'react-router-dom';
-import {PRODUCTS_URL, SUBCATEGORY_URL } from "../routes/clientRoutes";
+import axios from "../../api/axios";
+import { CATEGORY_URL } from "../../routes/serverRoutes";
+import defaultImage from "../../../public/vite.svg"; // Path to your default image
 
-const Home = () => {
+const Category = () => {
   const [categories, setCategories] = useState([]);
   const [errMsg, setErrMsg] = useState("");
 
@@ -15,7 +13,6 @@ const Home = () => {
       try {
         const res = await axios.get(CATEGORY_URL, { withCredentials: true });
         setCategories(res?.data);
-        console.log(res?.data);
       } catch (err) {
         setErrMsg(err?.response?.data?.error || "Failed to fetch categories");
       }
@@ -23,8 +20,6 @@ const Home = () => {
 
     fetchCategories();
   }, []);
-
-  //console.log(BASE_URL + "/" + categories[2].imageUrl)
 
   return (
     <div className="bg-indigo-100 min-h-screen p-6">
@@ -40,26 +35,26 @@ const Home = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {categories.map((category, index) => (
-          <Link
-            to={`${SUBCATEGORY_URL}?category=${category.name}`}
+          <motion.div
             key={index}
-            className="bg-white shadow-lg rounded-lg cursor-pointer hover:bg-indigo-600 p-4 flex flex-col items-center transition hover:shadow-xl"
+            className="bg-white shadow-lg rounded-lg p-4 flex flex-col items-center transition hover:shadow-xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <img
-
-              src={ category.imageUrl ?  `${BASE_URL}/${category.imageUrl}` : defaultImage  } 
+              src={category.image_url || defaultImage}
               alt={category.name}
               className="w-32 h-32 object-cover rounded-full border-4 border-indigo-200"
             />
             <h2 className="text-lg font-semibold text-indigo-800 mt-4">
               {category.name || "Unnamed Category"}
             </h2>
-          </Link>
+          </motion.div>
         ))}
       </div>
     </div>
   );
 };
 
-export default Home;
-
+export default Category;

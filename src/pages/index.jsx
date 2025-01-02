@@ -41,3 +41,5 @@ export {default as AdminCustomer} from './admin/customer/AdminCustomer.jsx';
 export {default as AdminAddCategory} from './admin/category/AdminAddCategory.jsx';
 export {default as AdminProductCategory} from './admin/category/AdminProductCategory.jsx';
 export {default as AdminEditCategory} from './admin/category/AdminEditCategory.jsx';
+export {default as Categories} from './all/Category';
+export {default as SubCategories} from './all/ProductCategory.jsx';

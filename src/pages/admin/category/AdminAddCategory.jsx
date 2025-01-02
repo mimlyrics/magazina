@@ -33,12 +33,6 @@ const AdminAddCategory = () => {
     setError('');
     setSuccess('');
 
-    if (!categoryName || !file) {
-      setError('Please provide both category name and file.');
-      return;
-    }
-
-
     const formData = new FormData();
     formData.append('name', categoryName);
     formData.append('file', file);

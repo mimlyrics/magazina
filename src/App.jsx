@@ -26,15 +26,21 @@ import { Ecommerce, Orders, Calendar, Employees, Stacked,
    AdminOrderItem,
    AdminAddCategory,
    AdminEditCategory,
-   AdminProductCategory} from './pages';
+   AdminProductCategory,
+   Categories,
+   EditCategory,
+   SubCategories} from './pages';
 
 import { useStateContext } from './contexts/ContextProvider';
+import RequireAuth from './pages/authMiddleware/RequireAuth';
+import RequireManager from './pages/authMiddleware/RequireManager';
+import RequireAdmin from './pages/authMiddleware/RequireAdmin';
 function App() {
   const {activeMenu} = useStateContext(); 
   return (
     
     <div>
-      <HashRouter>
+      <HashRouter basename='/'>
         <Navbar/>
         <div className='flex relative dark:bg-main-dark-bg'>
           <div className='absolute top-[85vh] right-4' style={{zIndex: '1000'}}>
@@ -52,7 +58,9 @@ function App() {
            
         </div>
         }
-        <div>
+      
+        
+        <div className={activeMenu ? "-z-50" : "z-50"}>
           <Routes>
             <Route path="/" element={<Home/>}/>
             <Route path="/ecommerce" element={<Orders/>} />
@@ -72,7 +80,25 @@ function App() {
             <Route path="/stacked" element={<Stacked/>}/>
 
 
-            <Route>
+            <Route path='/register' element={<Register/>}/>
+            <Route path='/login' element={<Login/>}/>
+            <Route path="/products" element={<Products/>}/>
+            <Route path="/product" element={<Product/>}/>
+            <Route path='/profile' element={<Profile/>}/>
+            <Route path="/purchase-cart" element={<PurchaseCart/>}/>
+            <Route path="/cart" element={<Cart/>}/>
+            <Route path='/categories' element={<Categories/>}/>
+            <Route path='/subcategories' element={<SubCategories/>}/>
+
+        </Routes>
+
+        <Routes>
+
+          <Route element={<RequireAuth/>}>
+            <Route path="/orders" element={<Orders/>}/>
+          </Route>
+
+          <Route element={<RequireManager/>}>
               <Route path='/manager/product-category/add' element={<AddCategory/>}/>
               <Route path='/manager/product-category' element={<AdminCategory/>}/>
 
@@ -84,46 +110,35 @@ function App() {
               <Route path='/manager/stocks/create' element={<AdminAddStock/>}/>
               <Route path='/manager/stocks/edit/:stockId' element={<AdminEditStock/>}/>
 
-              <Route path='/register' element={<Register/>}/>
-              <Route path='/login' element={<Login/>}/>
-              <Route path='/admin/users' element={<AdminUser/>}/>
-
-              <Route path="/admin/suppliers" element={<AdminSupplier/>} />
-              <Route path='/admin/suppliers/add' element={<AdminAddSupplier/>}/>
-              <Route path='/admin/suppliers/edit' element={<AdminEditSupplier/>}/>
-
-              <Route path="/products" element={<Products/>}/>
-              <Route path="/product" element={<Product/>}/>
-
-              <Route path='/profile' element={<Profile/>}/>
-
-              <Route path="/orders" element={<Orders/>}/>
-              <Route path="/purchase-cart" element={<PurchaseCart/>}/>
-              <Route path="/cart" element={<Cart/>}/>
-
-              <Route path='/manager/orders' element={<AdminOrder/>}/>
-              <Route path='/manager/customers' element={<AdminCustomer/>}/>
-              <Route path='/manager/order-items' element={<AdminOrderItem/>}/>
-
 
               <Route path='/manager/category/add' element={<AdminAddCategory/>}/>
               <Route path='/manager/categories' element={<AdminCategory/>}/>
-              <Route path='/manager/category/edit' element={<AdminEditCategory/>}/>
+              <Route path='/manager/category/edit/:categoryId' element={<AdminEditCategory/>}/>
               <Route path='/manager/product-categories' element={<AdminProductCategory/>}/>
 
-              <Route path='/manager/stocks/add' element={<AdminAddStockByProductId/>}/>
-                      <Route
-path="/manager/stocks/add/:productId"
-element={<AdminAddStockByProductId />}
-/>
-            </Route>
-          </Routes>
+              <Route path='/manager/subcategory/add' element={<AddCategory/>}/>
+              <Route path='/manager/subcategory/edit/:categoryId' element={<EditCategory/>}/>
 
+              <Route path='/manager/stocks/add' element={<AdminAddStockByProductId/>}/>
+              <Route path="/manager/stocks/add/:productId" element={<AdminAddStockByProductId />}/>
+              <Route path='/manager/orders' element={<AdminOrder/>}/>
+              <Route path='/manager/customers' element={<AdminCustomer/>}/>
+              <Route path='/manager/order-items' element={<AdminOrderItem/>}/>
+          </Route>
+
+          <Route element={<RequireAdmin/>}>
+              <Route path='/admin/users' element={<AdminUser/>}/>
+              <Route path="/admin/suppliers" element={<AdminSupplier/>} />
+              <Route path='/admin/suppliers/add' element={<AdminAddSupplier/>}/>
+              <Route path='/admin/suppliers/edit' element={<AdminEditSupplier/>}/>           
+          </Route>
+
+        </Routes>
 
         </div>
 
         <Footer/>
-      </HasRouter>
+      </HashRouter>
    
 
     </div>

@@ -3,109 +3,156 @@ import axios from '../../api/axios';
 import { Link } from 'react-router-dom';
 import { PRODUCT_URL } from '../../routes/serverRoutes';
 import { useSelector } from 'react-redux';
-import queryString from 'query-string';
 import { selectCurrentToken } from '../../slices/auth/authSlice';
 import { useStateContext } from '../../contexts/ContextProvider';
 import BASE_URL from '../../routes/serverRoutes';
+import { motion } from 'framer-motion';
+import defaultImage from '../../../public/vite.svg'; // Replace with your default image path
 
 const Products = () => {
-    const [errMsg, setErrMsg] = useState();
-    const [products, setProducts] = useState([]);
-    const [productsByCategory, setProductsByCategory] = useState([]);
-    const [category, setCategory] = useState("");
-    const token = useSelector(selectCurrentToken);
-    const { cart, dispatch } = useStateContext();
+  const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(6); // Number of products per page
+  const [errMsg, setErrMsg] = useState('');
+  const token = useSelector(selectCurrentToken);
+  const { cart, dispatch } = useStateContext();
 
-    useEffect(() => {
-        const { categoryx } = queryString.parse(location.search);
-        setCategory(categoryx);
-    }, [location.search]);
-
-    useEffect(() => {
-        const getProductByCategory = async () => {
-            try {
-                const res = await axios.get(PRODUCT_URL, {
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    withCredentials: true
-                });
-                setProducts(res.data);
-            } catch (err) {
-                setErrMsg(err?.response?.data);
-            }
-        };
-
-        getProductByCategory();
-    }, [category, token]);
-
-    useEffect(() => {
-        if (products && category) {
-            setProductsByCategory(products.filter(product => product.productCategory?.id === parseInt(category)));
-        }
-    }, [products, category]);
-
-    // Function to check if the product is already in the cart
-    const isProductInCart = (productId) => {
-        return cart.items.some(item => item.productId === productId);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(PRODUCT_URL, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        });
+        setProducts(res.data);
+      } catch (err) {
+        setErrMsg(err?.response?.data || 'Error fetching products');
+      }
     };
 
-    const handleAddToCart = (product) => {
-        if (!isProductInCart(product.id)) {
-            dispatch({
-                type: 'ADD_TO_CART',
-                payload: {
-                    productId: product.id,
-                    name: product.name,
-                    price: product.price,
-                    quantity: 1,
-                },
-            });
-        }
-    };
+    fetchProducts();
+  }, [token]);
 
-    console.log(cart);
+  const isProductInCart = (productId) => {
+    return cart.items.some((item) => item.productId === productId);
+  };
 
+  const handleAddToCart = (product) => {
+    if (!isProductInCart(product.id)) {
+      dispatch({
+        type: 'ADD_TO_CART',
+        payload: {
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+        },
+      });
+    }
+  };
+
+  // Search filtering
+  const filteredProducts = products.filter((product) => {
+    const term = searchTerm.toLowerCase();
     return (
-        <div className='md:ml-[32%] xl:ml-[23%] mt-1 mb-4'>
-            <div className='mx-2 my-2 text-teal-800 text-lg md:text-2xl'>
-                <input
-                    type="text"
-                    placeholder='search..'
-                    className='border rounded-lg w-[75%] p-3 md:p-5 outline-2 outline-indigo-300'
-                />
-                <button className='shadow-indigo-500 p-3 md:p-5 text-white border bg-indigo-700 w-[20%] shadow-md rounded-lg px-7'>
-                    Search
-                </button>
-            </div>
-
-            <div className='grid bg-slate-400 grid-cols-2 md:grid-cols-3 w-full gap-4 p-5'>
-                {Array.isArray(productsByCategory) && productsByCategory.length > 0 ? (
-                    productsByCategory.map(product => (
-                        <div key={product.id} className='bg-slate-100 rounded-md p-4'>
-                            <h1>Price: {product.price}</h1>
-                            <h3>{product.name}</h3>
-                            {product.images && product.images.map(image => (
-                                <div key={image.id}>
-                                    <img src={`${BASE_URL}/${image.imageUrl}`} alt="Product" />
-                                </div>
-                            ))}
-                            <p>{product.description}</p>
-
-                            {/* Check if product is already in the cart */}
-                            <button
-                                onClick={() => handleAddToCart(product)}
-                                className={`p-3 rounded-md ${isProductInCart(product.id) ? 'bg-indigo-100' : 'bg-indigo-400 hover:bg-indigo-800'} text-white`}
-                                disabled={isProductInCart(product.id)}
-                            >
-                                {isProductInCart(product.id) ? 'Added to Cart' : 'Add to Cart'}
-                            </button>
-                        </div>
-                    ))
-                ) : (
-                    <p>No products found for this category.</p>
-                )}
-            </div>
-        </div>
+      product.name.toLowerCase().includes(term) ||
+      product.description.toLowerCase().includes(term) ||
+      product.price.toString().includes(term)
     );
+  });
+
+  // Pagination calculations
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="text-center my-6">
+        <input
+          type="text"
+          placeholder="Search by name, description, or price..."
+          className="border rounded-lg w-3/4 p-3 outline-indigo-300"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {errMsg && <div className="text-red-500 text-center">{errMsg}</div>}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {currentProducts.length > 0 ? (
+          currentProducts.map((product) => (
+            <motion.div
+              key={product.id}
+              className="bg-white shadow-md rounded-md p-4"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h1 className="font-bold text-indigo-800">Price: ${product.price}</h1>
+              <h3 className="font-semibold">{product.name}</h3>
+              <img
+                src={product.images?.[0]?.imageUrl ? `${BASE_URL}/${product.images[0].imageUrl}` : defaultImage}
+                alt={product.name}
+                className="w-full h-48 object-cover rounded-md my-4"
+              />
+              <p className="text-gray-600">{product.description}</p>
+
+              <button
+                onClick={() => handleAddToCart(product)}
+                className={`mt-4 w-full p-3 rounded-md ${
+                  isProductInCart(product.id)
+                    ? 'bg-indigo-300 text-gray-700'
+                    : 'bg-indigo-500 text-white hover:bg-indigo-700'
+                }`}
+                disabled={isProductInCart(product.id)}
+              >
+                {isProductInCart(product.id) ? 'Added to Cart' : 'Add to Cart'}
+              </button>
+            </motion.div>
+          ))
+        ) : (
+          <p className="text-center text-gray-700">No products found.</p>
+        )}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center mt-6">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className="px-4 py-2 mx-1 bg-indigo-500 text-white rounded-md hover:bg-indigo-700"
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            className={`px-4 py-2 mx-1 rounded-md ${
+              currentPage === page ? 'bg-indigo-700 text-white' : 'bg-indigo-300'
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          className="px-4 py-2 mx-1 bg-indigo-500 text-white rounded-md hover:bg-indigo-700"
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default Products;

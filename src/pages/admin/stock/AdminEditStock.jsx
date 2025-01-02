@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../slices/auth/authSlice";
-import { STOCK_URL, STATUS_URL, PRODUCT_URL } from "../../../routes/serverRoutes";
+import { STOCK_URL, STATUS_URL, PRODUCT_URL, MOVEMENT_TYPE_URL } from "../../../routes/serverRoutes";
 import { MANAGER_PRODUCTS_URL } from "../../../routes/clientRoutes";
 
 const AdminEditStock = () => {
@@ -13,14 +13,15 @@ const AdminEditStock = () => {
     reorderLevel: "",
     status: "",
     sku: "",
+    movementType: "",
+    movementReason: "",
     stockId: stockId, // Initialize with the productId from the URL
   });
   const [statuses, setStatuses] = useState([]);
+  const [movementTypes, setMovementTypes] = useState([]);
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const token = useSelector(selectCurrentToken);
-
-  // Fetch the product details
 
   // Fetch the existing stock details
   useEffect(() => {
@@ -58,6 +59,23 @@ const AdminEditStock = () => {
     fetchStatuses();
   }, [token]);
 
+  // Fetching movement types for the stock
+  useEffect(() => {
+    const fetchMovementTypes = async () => {
+      try {
+        const response = await axios.get(MOVEMENT_TYPE_URL, {
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
+        setMovementTypes(response.data || []);
+      } catch (error) {
+        console.error("Error fetching movement types:", error);
+      }
+    };
+
+    fetchMovementTypes();
+  }, [token]);
+
   // Handling input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -74,6 +92,8 @@ const AdminEditStock = () => {
         reorderLevel: stock.reorderLevel,
         status: stock.status,
         sku: stock.sku,
+        movementType: stock.movementType,
+        movementReason: stock.movementReason,
         stock: { id: stock.stockId },
       }, {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -148,62 +168,36 @@ const AdminEditStock = () => {
         </div>
 
         <div className="my-3">
-          <label htmlFor="sku" className="block text-lg">SKU</label>
+          <label htmlFor="movementType" className="block text-lg">Movement Type</label>
+          <select
+            name="movementType"
+            id="movementType"
+            value={stock.movementType}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md"
+            required
+          >
+            <option value="">Select Movement Type</option>
+            {movementTypes.map((type) => (
+              <option key={type.name} value={type.name}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="my-3">
+          <label htmlFor="movementReason" className="block text-lg">Movement Reason</label>
           <input
             type="text"
-            id="sku"
-            name="sku"
-            autoComplete="off"
-            value={stock.sku}
+            id="movementReason"
+            name="movementReason"
+            value={stock.movementReason}
             onChange={handleInputChange}
             className="w-full p-2 border rounded-md"
             required
           />
         </div>
-
-        {/* Read-Only Product Details 
-        {product && (
-          <div className="mt-6 border-t pt-4">
-            <div className="my-3">
-              <label className="block text-lg">Product Name</label>
-              <input
-                type="text"
-                value={product.name}
-                className="w-full p-2 border rounded-md bg-gray-200"
-                readOnly
-              />
-            </div>
-
-            <div className="my-3">
-              <label className="block text-lg">Product Price</label>
-              <input
-                type="text"
-                value={product.price}
-                className="w-full p-2 border rounded-md bg-gray-200"
-                readOnly
-              />
-            </div>
-
-            <div className="my-3">
-              <label className="block text-lg">Product Description</label>
-              <textarea
-                value={product.description}
-                className="w-full p-2 border rounded-md bg-gray-200"
-                readOnly
-              />
-            </div>
-
-            <div className="my-3">
-              <label className="block text-lg">Product Category</label>
-              <input
-                type="text"
-                value={product.productCategory?.name || "No Category"}
-                className="w-full p-2 border rounded-md bg-gray-200"
-                readOnly
-              />
-            </div>
-          </div>
-        )}*/}
 
         {/* Submit Button */}
         <div className="my-4 text-center">

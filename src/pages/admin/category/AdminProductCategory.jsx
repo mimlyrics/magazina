@@ -3,11 +3,13 @@ import axios from "../../../api/axios";
 import { CATEGORY_URL, PRODUCT_CATEGORY_URL } from "../../../routes/serverRoutes";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../slices/auth/authSlice";
-import { MdManageSearch } from "react-icons/md";
-import { FaX } from "react-icons/fa6";
+import { MdAllOut, MdCalculate, MdManageSearch } from "react-icons/md";
+import { FaPlus, FaX } from "react-icons/fa6";
 import Pagination from "../../../components/Pagination";
 import { format } from "date-fns"; // For date formatting
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { MANAGER_ADD_SUBCATEGORY_URL } from "../../../routes/clientRoutes";
 
 const AdminProductCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -36,6 +38,7 @@ const AdminProductCategory = () => {
           withCredentials: true,
         });
         setCategories(res?.data);
+        console.log(res?.data);
         setFilteredData([]);
       } catch (err) {
         setErrMsg(err?.response?.data?.error || "Failed to fetch categories");
@@ -104,12 +107,25 @@ const AdminProductCategory = () => {
           </div>
         </div>
 
-        <div className="flex mt-2 justify-center space-x-5 text-sm">
+
+        <div className="flex mt-2 space-x-5 text-sm">
+          <Link
+            to={MANAGER_ADD_SUBCATEGORY_URL}
+            className="rounded-md bg-indigo-400 text-white p-3 hover:bg-indigo-700"
+          >
+            <FaPlus />
+            Add
+          </Link>
+          <button className="rounded-md bg-teal-400 text-white p-3 hover:bg-teal-700">
+            <MdCalculate />
+            Stat
+          </button>
           <button
             onClick={showAllCategories}
             className="rounded-md bg-rose-400 text-white p-3 hover:bg-rose-800"
           >
-            Show All
+            <MdAllOut />
+            show All
           </button>
         </div>
       </div>

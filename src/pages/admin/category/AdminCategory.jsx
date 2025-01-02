@@ -3,11 +3,13 @@ import axios from "../../../api/axios";
 import { CATEGORY_URL } from "../../../routes/serverRoutes";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../slices/auth/authSlice";
-import { MdManageSearch, MdEdit, MdDelete } from "react-icons/md";
-import { FaX } from "react-icons/fa6";
+import { MdManageSearch, MdEdit, MdDelete, MdCalculate, MdAllOut } from "react-icons/md";
+import { FaPlus, FaX } from "react-icons/fa6";
 import Pagination from "../../../components/Pagination";
 import { format } from "date-fns"; // For date formatting
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { MANAGER_ADD_CATEGORY_URL, MANAGER_EDIT_CATEGORY_URL } from "../../../routes/clientRoutes";
 
 const AdminCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -36,6 +38,7 @@ const AdminCategory = () => {
           withCredentials: true,
         });
         setCategories(res?.data);
+        console.log(res?.data);
         setFilteredData([]);
       } catch (err) {
         setErrMsg(err?.response?.data?.error || "Failed to fetch categories");
@@ -125,12 +128,24 @@ const AdminCategory = () => {
           </div>
         </div>
 
-        <div className="flex mt-2 justify-center space-x-5 text-sm">
+        <div className="flex mt-2 space-x-5 text-sm">
+          <Link
+            to={MANAGER_ADD_CATEGORY_URL}
+            className="rounded-md bg-indigo-400 text-white p-3 hover:bg-indigo-700"
+          >
+            <FaPlus />
+            Add
+          </Link>
+          <button className="rounded-md bg-teal-400 text-white p-3 hover:bg-teal-700">
+            <MdCalculate />
+            Stat
+          </button>
           <button
             onClick={showAllCategories}
             className="rounded-md bg-rose-400 text-white p-3 hover:bg-rose-800"
           >
-            Show All
+            <MdAllOut />
+            show All
           </button>
         </div>
       </div>
@@ -173,12 +188,12 @@ const AdminCategory = () => {
                   )}
                 </td>
                 <td className="px-2 py-1 flex justify-center space-x-3">
-                  <button
-                    onClick={() => handleEdit(category.id)}
+                  <Link
+                    to={`${MANAGER_EDIT_CATEGORY_URL}/${category.id}`}
                     className="text-green-500 hover:text-green-700"
                   >
                     <MdEdit size={20} />
-                  </button>
+                  </Link>
                   <button
                     onClick={() => handleDelete(category.id)}
                     className="text-red-500 hover:text-red-700"

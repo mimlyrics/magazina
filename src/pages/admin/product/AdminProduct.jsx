@@ -38,6 +38,7 @@ const AdminProduct = () => {
         });
         setProducts(res?.data);
         setData(res?.data);
+        console.log(res?.data);
       } catch (err) {
         setErrMsg(err?.data);
       }
@@ -144,8 +145,8 @@ const AdminProduct = () => {
               >
                 <td>{product.name}</td>
                 <td>{product.price}</td>
-                <td>{product.productCategory.name}</td>
-                <td>{product.images.length}</td>
+                <td>{ "NULL"}</td>
+                <td>{"NULL"}</td>
                 <td>{product.length ?? "NULL"}</td>
                 <td>{product.width ?? "NULL"}</td>
                 <td>{product.height ?? "NULL"}</td>
