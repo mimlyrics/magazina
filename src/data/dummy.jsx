@@ -3,16 +3,7 @@ import { FiShoppingBag, FiUsers } from "react-icons/fi";
 import { MdApps, MdCategory, MdContacts, MdHome, MdInsertEmoticon, MdOutlineCategory, MdOutlineShoppingCart, MdStore } from "react-icons/md";
 
 export const links = [
-    {
-        title: 'Dashboard',
-        links: [
-            {
-                name: 'ecommerce',
-                baseUrl: '/',
-                icon: <FiShoppingBag  className="text-2xl text-gray-800 "/>
-            }
-        ]
-    },
+
 
    {
         title: 'Pages',

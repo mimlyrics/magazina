@@ -1,39 +1,58 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { selectCurrentToken } from "../../slices/auth/authSlice";
 import { useSelector } from "react-redux";
 import { Outlet } from "react-router";
 import axios from "../../api/axios";
 import ErrorMiddleware from "./ErrorMiddleware";
 import BASE_URL from "../../routes/serverRoutes";
-const PROTECT_ADMIN_URL = `${BASE_URL}/api/v1/protected/get-role`
+
+const PROTECT_ADMIN_URL = `${BASE_URL}/api/v1/protected/get-role`;
+
 const RequireAdmin = () => {
   const token = useSelector(selectCurrentToken);
   const [errMsg, setErrMsg] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [statusCode, setStatusCode] = useState("404");
-  //console.log("token: ", token);
+  const [isAdmin, setIsAdmin] = useState(null);  // Initially, set to null to indicate that it's not yet determined
+  const [statusCode, setStatusCode] = useState(null);  // Set to null initially
+
   useEffect(() => {
-    const detAdmin = async  () => {
-        try {
-            const res = await axios.get(PROTECT_ADMIN_URL, 
-                {headers: {withCredentials: true, Authorization: `Bearer ${token}`}});
-            console.log(res.data);
-            setIsAdmin(res.data);
-        }catch(err) {
-            //console.log(err?.data);
-            setErrMsg(err?.response?.data?.error);
-        }
+    const detectAdmin = async () => {
+      try {
+        const res = await axios.get(PROTECT_ADMIN_URL, {
+          headers: { withCredentials: true, Authorization: `Bearer ${token}` },
+        });
+        setIsAdmin(res.data);  // Assuming the server responds with the role (e.g., "ADMIN")
+      } catch (err) {
+        setStatusCode(err?.response?.status); // Set status code from error response
+        setErrMsg(err?.response?.data?.error || "Unauthorized");
+      }
+    };
+
+    if (token) {
+      detectAdmin();
     }
-    detAdmin();
-  }, [token])
+  }, [token]);
+
+  if (isAdmin === null) {
+    return <div>Loading...</div>;  // You can show a loading state while the role is being fetched
+  }
+
   return (
     <div>
-        {isAdmin == "ADMIN" ? 
-            <Outlet/> :
-            <ErrorMiddleware  statusCode={statusCode} key={errMsg} errMsg={errMsg} />
-        }  
-    </div>
-  )
-}
+      {/* If the role is "ADMIN", render the Outlet */}
+      {isAdmin === "ADMIN" && <Outlet />}
 
-export default RequireAdmin
+      {/* If the role is not "ADMIN", show the Unauthorized error */}
+      {(isAdmin === "USER" || isAdmin === "SUPPLIER" || isAdmin === "MANAGER") && (
+        <ErrorMiddleware statusCode={"401"} key={errMsg} errMsg={"Unauthorized"} />
+      )}
+
+      {/* If the role is null or undefined, show the Unauthorized error */}
+      {isAdmin === null && (
+        <ErrorMiddleware statusCode={"401"} key={errMsg} errMsg={"Unauthorized"} />
+      )}
+    </div>
+  );
+};
+
+export default RequireAdmin;
+

@@ -60,7 +60,7 @@ function App() {
         }
       
         
-        <div className={activeMenu ? "-z-50" : "z-50"}>
+        <div className={activeMenu ? " relative -z-50" : "z-50"}>
           <Routes>
             <Route path="/" element={<Home/>}/>
             <Route path="/ecommerce" element={<Orders/>} />

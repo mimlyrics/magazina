@@ -45,6 +45,7 @@ const Navbar = () => {
     dispatch(logout());
     dispatch(clearLocation());
     //dispatch({type: 'CLEAR_CART'});
+    localStorage.removeItem("cart");
   };
 
   return (
