@@ -15,9 +15,11 @@ const ProductCategory = () => {
   const [loading, setLoading] = useState(true);
 
   const location = useLocation();
-  const token = useSelector(selectCurrentToken);
-  const { category } = queryString.parse(location.search); // Extract 'category' from query parameters
-
+  const token = useSelector(selectCurrentToken());
+  
+  // Manually parse the hash if using HashRouter
+  const { category } = queryString.parse(location.hash ? location.hash.split('?')[1] : ''); // Extract 'category' from hash
+  
   useEffect(() => {
     const fetchSubcategories = async () => {
       if (!category) {
@@ -36,7 +38,6 @@ const ProductCategory = () => {
           withCredentials: true,
         });
         setSubcategories(res?.data[0].productCategories || []);
-        console.log(res?.data);
         setErrMsg("");
       } catch (err) {
         setErrMsg(err?.response?.data?.error || "Failed to fetch subcategories");
@@ -46,7 +47,7 @@ const ProductCategory = () => {
     };
 
     fetchSubcategories();
-  }, [category]);
+  }, [category, token]); // Include token in dependencies to ensure it is available
 
   return (
     <div className="bg-indigo-100 min-h-screen p-6">
@@ -70,7 +71,7 @@ const ProductCategory = () => {
       ) : (
         // Subcategories Grid
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          { subcategories ? subcategories.map((subcategory, index) => (
+          {subcategories.map((subcategory, index) => (
             <motion.div
               key={index}
               whileHover={{ scale: 1.05 }}
@@ -87,7 +88,6 @@ const ProductCategory = () => {
                       ? `${BASE_URL}/${subcategory.imageUrl}`
                       : defaultImage
                   }
-                  
                   className="w-32 h-32 object-cover rounded-full border-4 border-indigo-200"
                 />
                 <h2 className="text-lg font-semibold text-indigo-800 mt-4 text-center">
@@ -95,7 +95,7 @@ const ProductCategory = () => {
                 </h2>
               </Link>
             </motion.div>
-          )) : null}
+          ))}
         </div>
       )}
     </div>
@@ -103,5 +103,3 @@ const ProductCategory = () => {
 };
 
 export default ProductCategory;
-
-
