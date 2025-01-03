@@ -57,7 +57,7 @@ const Navbar = () => {
         dotColor="#03C9D7"
         title="Menu"
         color="white"
-        value={0}
+        value={""}
         customFunc={() => setActiveMenu(!activeMenu)}
         icon={activeMenu ? <MdCancel /> : <MdOutlineMenu />}
       />
@@ -73,7 +73,7 @@ const Navbar = () => {
           icon={<FiShoppingCart />}
           customFunc={() => handleClick('cart')}
         />
-        <NavButton
+        {/*<NavButton
           className="flex"
           dotColor="#03C9D7"
           title="Chat"
@@ -81,7 +81,7 @@ const Navbar = () => {
           value={0}
           icon={<MdChat />}
           customFunc={() => handleClick('chat')}
-        />
+        />*/}
         <NavButton
           className="flex"
           dotColor="#03C9D7"
