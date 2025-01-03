@@ -7,7 +7,7 @@ import { USERS_URL, SUPPLIER_URL } from "../../../routes/serverRoutes";
 import { FaPlus, FaX } from "react-icons/fa6";
 import { MdManageSearch } from "react-icons/md";
 import Pagination from "../../../components/Pagination";
-
+import {Link} from "react-router-dom";
 const AdminUser = () => {
   const [users, setUsers] = useState([]);
   const [searchId, setSearchId] = useState("");
