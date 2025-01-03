@@ -118,7 +118,7 @@ function App() {
               {/* Admin-specific routes */}
               <Route path="/admin/users" element={<AdminUser />} />
               <Route path="/admin/suppliers" element={<AdminSupplier />} />
-              <Route path="/admin/suppliers/add" element={<AdminAddSupplier />} />
+              <Route path="/admin/suppliers/add/:id" element={<AdminAddSupplier />} />
               <Route path="/admin/suppliers/edit" element={<AdminEditSupplier />} />
             </Route>
           </Routes>
