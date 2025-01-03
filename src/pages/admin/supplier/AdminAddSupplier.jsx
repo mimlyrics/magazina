@@ -3,7 +3,8 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { SUPPLIER_URL } from "../../../routes/serverRoutes";
 import {useParams} from "react-router-dom";
-
+import { selectCurrentToken } from "../../../slices/auth/authSlice";
+import { useSelector } from "react-redux";
 const AdminAddSupplier = () => {
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
