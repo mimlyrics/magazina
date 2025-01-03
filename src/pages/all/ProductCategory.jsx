@@ -16,10 +16,11 @@ const ProductCategory = () => {
 
   const location = useLocation();
   const token = useSelector(selectCurrentToken());
-  
-  // Manually parse the hash if using HashRouter
-  const { category } = queryString.parse(location.hash ? location.hash.split('?')[1] : ''); // Extract 'category' from hash
-  
+
+  // Parse the hash manually to extract the query parameters
+  const hashParams = location.hash.split('?')[1]; // Get everything after '?'
+  const { category } = queryString.parse(hashParams || ''); // Parse the category from the hash query string
+
   useEffect(() => {
     const fetchSubcategories = async () => {
       if (!category) {
