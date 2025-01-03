@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../slices/auth/authSlice";
 import axios from "../../../api/axios";
-import { USERS_URL } from "../../../routes/serverRoutes";
+import { USERS_URL, SUPPLIER_URL } from "../../../routes/serverRoutes";
 import { FaPlus, FaX } from "react-icons/fa6";
 import { MdManageSearch } from "react-icons/md";
 import Pagination from "../../../components/Pagination";
@@ -141,6 +141,11 @@ const AdminUser = () => {
                   >
                     Delete
                   </button>
+                </td>
+                <td>
+                  <Link className="bg-green-500 text-white px-3 rounded-md hover:bg-green-700 py-1" 
+                     to={`${SUPPLIER_URL}/promote/${user.id}`}>
+                  </Link>
                 </td>
               </motion.tr>
             ))}
