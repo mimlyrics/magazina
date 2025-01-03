@@ -18,7 +18,7 @@ const AdminAddSupplier = () => {
   const userid = user?.id; 
     console.log(token, user, userid);*/
     const {id} = useParams();
-    const token = useSelector(selectCurrentToken);
+    const token = useSelector(selectCurrentToken());
 
     const handlePromotion = async () => {
         console.log(name, address, taxId);
