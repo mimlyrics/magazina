@@ -144,7 +144,7 @@ const AdminUser = () => {
                 </td>
                 <td>
                   <Link className="bg-green-500 text-white px-3 rounded-md hover:bg-green-700 py-1" 
-                     to={`${SUPPLIER_URL}/promote/${user.id}`}>
+                     to={`${SUPPLIER_URL}/promote/${user.id}`}>Promote
                   </Link>
                 </td>
               </motion.tr>
