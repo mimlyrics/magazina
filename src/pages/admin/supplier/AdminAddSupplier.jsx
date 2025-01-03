@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { SUPPLIER_URL } from "../../../routes/serverRoutes";
+import {useParams} from "react-router-dom";
 
 const AdminAddSupplier = () => {
     const [name, setName] = useState("");
@@ -10,11 +11,13 @@ const AdminAddSupplier = () => {
     const [errMsg, setErrMsg] = useState("");
     const [success, setSuccess] = useState("");
 
-    const location = useLocation();
+    /*const location = useLocation();
     console.log(location.state)
   const { user, token } = location.state || {}; // Destructure user and token from location.state
   const userid = user?.id; 
-    console.log(token, user, userid);
+    console.log(token, user, userid);*/
+    const {id} = useParams();
+    const token = useSelector(selectCurrentToken);
 
     const handlePromotion = async () => {
         console.log(name, address, taxId);
